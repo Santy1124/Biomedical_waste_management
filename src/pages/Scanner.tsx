@@ -1,7 +1,10 @@
+import { Html5Qrcode } from "html5-qrcode";
 import React from "react";
 import { StatusBadge } from "../components/StatusBadge";
 import { bags as initialBags } from "../data/mockData";
 import type { Bag, BagStatus } from "../types/bmw";
+
+const scannerId = "qr-reader";
 
 const nextActionMap: Record<BagStatus, { label: string; next: BagStatus } | null> = {
   Created: { label: "Collect Bag", next: "Collected" },
@@ -19,6 +22,10 @@ export function Scanner() {
   const [scannedBag, setScannedBag] = React.useState<Bag | null>(initialBags[0]);
   const [scanError, setScanError] = React.useState("");
   const [recentScans, setRecentScans] = React.useState<string[]>(["BMW-YEL-001"]);
+  const [isScanning, setIsScanning] = React.useState(false);
+
+  const scannerRef = React.useRef<Html5Qrcode | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   function runScan(value: string) {
     const found = bags.find(
@@ -31,9 +38,65 @@ export function Scanner() {
       return;
     }
 
+    setScanInput(found.id);
     setScanError("");
     setScannedBag(found);
     setRecentScans((prev) => [found.id, ...prev.filter((id) => id !== found.id)].slice(0, 5));
+  }
+
+  async function startCameraScanner() {
+    try {
+      setScanError("");
+
+      const scanner = new Html5Qrcode(scannerId);
+      scannerRef.current = scanner;
+
+      await scanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        async (decodedText) => {
+          runScan(decodedText);
+          await stopCameraScanner();
+        },
+        () => {}
+      );
+
+      setIsScanning(true);
+    } catch (error) {
+      console.error(error);
+      setScanError("Could not open camera. Use HTTPS/Vercel or manual entry.");
+    }
+  }
+
+  async function stopCameraScanner() {
+    try {
+      if (scannerRef.current) {
+        await scannerRef.current.stop();
+        await scannerRef.current.clear();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      scannerRef.current = null;
+      setIsScanning(false);
+    }
+  }
+
+  async function uploadQrImage(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setScanError("");
+
+      const scanner = new Html5Qrcode(scannerId);
+      const decodedText = await scanner.scanFile(file, true);
+      runScan(decodedText);
+      await scanner.clear();
+    } catch (error) {
+      console.error(error);
+      setScanError("Could not read QR from image.");
+    }
   }
 
   function scanBag(event: React.FormEvent<HTMLFormElement>) {
@@ -52,6 +115,14 @@ export function Scanner() {
     setScannedBag(updatedBags.find((bag) => bag.id === scannedBag.id) ?? null);
   }
 
+  React.useEffect(() => {
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
+      }
+    };
+  }, []);
+
   const nextAction = scannedBag ? nextActionMap[scannedBag.status] : null;
 
   return (
@@ -60,7 +131,7 @@ export function Scanner() {
       <h2>Scanner</h2>
 
       <p className="demo-description">
-        Use manual scan now. Real camera scan can be added after this layout is stable.
+        Scan QR using camera, upload QR image, or enter bag ID manually.
       </p>
 
       <div className="scanner-modern-layout">
@@ -68,8 +139,32 @@ export function Scanner() {
           <div className="card">
             <h3>Scan Options</h3>
 
-            <button className="primary-btn full-btn">Open Camera Scanner</button>
-            <button className="secondary-btn full-btn">Upload QR Image</button>
+            <div id={scannerId} className="real-scanner-box" />
+
+            {!isScanning ? (
+              <button className="primary-btn full-btn" onClick={startCameraScanner}>
+                Open Camera Scanner
+              </button>
+            ) : (
+              <button className="secondary-btn full-btn" onClick={stopCameraScanner}>
+                Stop Camera
+              </button>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={uploadQrImage}
+            />
+
+            <button
+              className="secondary-btn full-btn"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Upload QR Image
+            </button>
 
             <form onSubmit={scanBag} className="scan-form">
               <label>Manual Bag ID</label>
@@ -88,14 +183,7 @@ export function Scanner() {
             <h3>Recent Scans</h3>
             <div className="recent-scan-list">
               {recentScans.map((id) => (
-                <button
-                  key={id}
-                  className="recent-scan"
-                  onClick={() => {
-                    setScanInput(id);
-                    runScan(id);
-                  }}
-                >
+                <button key={id} className="recent-scan" onClick={() => runScan(id)}>
                   {id}
                 </button>
               ))}
@@ -105,10 +193,6 @@ export function Scanner() {
 
         <div className="card scan-result-card">
           <h3>Scan Result</h3>
-
-          {!scannedBag && (
-            <p>Scan or enter a bag ID to view custody details and available actions.</p>
-          )}
 
           {scannedBag && (
             <>
@@ -135,9 +219,7 @@ export function Scanner() {
                     {nextAction.label}
                   </button>
                 ) : (
-                  <button className="secondary-btn" disabled>
-                    No Next Action
-                  </button>
+                  <button className="secondary-btn" disabled>No Next Action</button>
                 )}
 
                 <button className="secondary-btn danger-outline" onClick={() => updateStatus("Disputed")}>
