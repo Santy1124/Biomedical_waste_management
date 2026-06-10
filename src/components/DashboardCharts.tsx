@@ -59,7 +59,7 @@ export function DashboardCharts() {
                 outerRadius={90}
                 label
               >
-                {departmentWasteData.map((entry, index) => (
+                {departmentWasteData.map((_, index) => (
                   <Cell
                     key={index}
                     fill={COLORS[index % COLORS.length]}
