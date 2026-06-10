@@ -14,8 +14,8 @@ export function BagTracking() {
     ? bags.find((bag) => bag.id === selectedBagId) ?? null
     : null;
 
-  function updateStatus(bagId: string, status: BagStatus) {
-    updateBagStatus(bagId, status);
+  async function updateStatus(bagId: string, status: BagStatus) {
+    await updateBagStatus(bagId, status);
   }
 
   function viewBag(bag: Bag) {

@@ -13,10 +13,10 @@ export function CreateBag() {
   const [weight, setWeight] = React.useState("");
   const [createdBagId, setCreatedBagId] = React.useState("BMW-YEL-001");
 
-  function createBag(event: React.FormEvent<HTMLFormElement>) {
+  async function createBag(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const newBag = addBag({
+    const newBag = await addBag({
       category,
       department,
       weight: weight ? `${weight} kg` : "Pending",

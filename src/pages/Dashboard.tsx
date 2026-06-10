@@ -2,8 +2,17 @@ import { BagTable } from "../components/BagTable";
 import { DashboardCharts } from "../components/DashboardCharts";
 import { StatCard } from "../components/StatCard";
 import { useBagStore } from "../store/bagStore";
+import React from "react";
+import { getBags } from "../services/bagService";
 
 export function Dashboard() {
+  React.useEffect(() => {
+    getBags()
+      .then((data) => {
+        console.log("Supabase Bags:", data);
+      })
+      .catch(console.error);
+  }, []);
   const bags = useBagStore((state) => state.bags);
   return (
     <>

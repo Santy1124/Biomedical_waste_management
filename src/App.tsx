@@ -15,8 +15,15 @@ import type { DemoUser } from "./types/auth";
 import type { PageKey } from "./types/bmw";
 import { Compliance } from "./pages/Compliance";
 import { Alerts } from "./pages/Alerts";
+import { useBagStore } from "./store/bagStore";
 
 export function App() {
+  const loadBags = useBagStore((state) => state.loadBags);
+
+  React.useEffect(() => {
+    loadBags();
+  }, [loadBags]);
+
   const [user, setUser] = React.useState<DemoUser>(demoUsers[0]);
   const [page, setPage] = React.useState<PageKey>(demoUsers[0].allowedPages[0]);
 
