@@ -1410,3 +1410,88 @@ button:disabled {
   font-size: 13px;
   font-weight: 800;
 }
+
+.scanner-modern-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) 1fr;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.scanner-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.full-btn {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.recent-scan-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recent-scan {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  border-radius: 12px;
+  color: #e5e7eb;
+  padding: 10px;
+  text-align: left;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.recent-scan:hover {
+  background: rgba(37, 99, 235, 0.25);
+}
+
+.scan-result-card {
+  min-height: 360px;
+}
+
+.qr-label img {
+  width: 130px;
+  height: 130px;
+  border-radius: 12px;
+  background: white;
+}
+
+@media (max-width: 900px) {
+  .scanner-modern-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .sidebar,
+  .mobile-menu-btn,
+  .form-card,
+  .secondary-btn,
+  .primary-btn {
+    display: none !important;
+  }
+
+  .app-shell,
+  .content-area,
+  .page-card {
+    display: block;
+    padding: 0;
+    background: white;
+    border: none;
+  }
+
+  .qr-label-card {
+    border: none;
+    background: white;
+    color: black;
+  }
+}

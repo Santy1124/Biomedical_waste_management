@@ -1,4 +1,5 @@
 import React from "react";
+import { QrLabel } from "../components/QrLabel";
 
 const categoryPrefix = {
   Yellow: "YEL",
@@ -13,7 +14,7 @@ export function CreateBag() {
   const [department, setDepartment] = React.useState("OT");
   const [category, setCategory] = React.useState<Category>("Yellow");
   const [weight, setWeight] = React.useState("");
-  const [createdBagId, setCreatedBagId] = React.useState("BMW-YEL-NEW");
+  const [createdBagId, setCreatedBagId] = React.useState("BMW-YEL-001");
 
   function createBag(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -28,7 +29,7 @@ export function CreateBag() {
       <h2>Create Bag Unit</h2>
 
       <p className="demo-description">
-        Create a bag/container unit, assign category, origin department, and generate a printable QR label.
+        Create a bag/container unit, assign category, origin department, and generate a real QR label.
       </p>
 
       <div className="form-grid">
@@ -61,21 +62,18 @@ export function CreateBag() {
         </form>
 
         <div className="qr-label-card">
-          <p className="demo-label">Printable Label</p>
+          <p className="demo-label">Printable QR Label</p>
 
-          <div className="qr-label">
-            <div className="fake-qr">QR</div>
+          <QrLabel
+            bagId={createdBagId}
+            category={category}
+            department={department}
+            weight={weight}
+          />
 
-            <div className="qr-label-info">
-              <h3>{createdBagId}</h3>
-              <p>Category: <span>{category}</span></p>
-              <p>Department: <span>{department}</span></p>
-              <p>Weight: <span>{weight || "Pending"}</span></p>
-              <p>Status: <span>Created</span></p>
-            </div>
-          </div>
-
-          <button className="secondary-btn">Print Label</button>
+          <button className="secondary-btn" onClick={() => window.print()}>
+            Print Label
+          </button>
         </div>
       </div>
     </>
