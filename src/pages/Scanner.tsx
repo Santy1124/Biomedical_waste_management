@@ -2,7 +2,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import React from "react";
 import { StatusBadge } from "../components/StatusBadge";
 import { useBagStore } from "../store/bagStore";
-import type { Bag, BagStatus } from "../types/bmw";
+import type { BagStatus } from "../types/bmw";
 
 const scannerId = "qr-reader";
 
