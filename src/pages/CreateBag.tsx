@@ -1,16 +1,13 @@
 import React from "react";
 import { QrLabel } from "../components/QrLabel";
+import { useBagStore } from "../store/bagStore";
+import type { Bag } from "../types/bmw";
 
-const categoryPrefix = {
-  Yellow: "YEL",
-  Red: "RED",
-  White: "WHT",
-  Blue: "BLU",
-};
-
-type Category = keyof typeof categoryPrefix;
+type Category = Bag["category"];
 
 export function CreateBag() {
+  const addBag = useBagStore((state) => state.addBag);
+
   const [department, setDepartment] = React.useState("OT");
   const [category, setCategory] = React.useState<Category>("Yellow");
   const [weight, setWeight] = React.useState("");
@@ -19,8 +16,13 @@ export function CreateBag() {
   function createBag(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const randomId = Math.floor(100 + Math.random() * 900);
-    setCreatedBagId(`BMW-${categoryPrefix[category]}-${randomId}`);
+    const newBag = addBag({
+      category,
+      department,
+      weight: weight ? `${weight} kg` : "Pending",
+    });
+
+    setCreatedBagId(newBag.id);
   }
 
   return (
@@ -55,7 +57,7 @@ export function CreateBag() {
           <input
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
-            placeholder="Example: 2.5 kg"
+            placeholder="Example: 2.5"
           />
 
           <button className="primary-btn">Create QR Bag</button>
@@ -68,7 +70,7 @@ export function CreateBag() {
             bagId={createdBagId}
             category={category}
             department={department}
-            weight={weight}
+            weight={weight ? `${weight} kg` : "Pending"}
           />
 
           <button className="secondary-btn" onClick={() => window.print()}>

@@ -1,9 +1,10 @@
 import { BagTable } from "../components/BagTable";
 import { DashboardCharts } from "../components/DashboardCharts";
 import { StatCard } from "../components/StatCard";
-import { bags } from "../data/mockData";
+import { useBagStore } from "../store/bagStore";
 
 export function Dashboard() {
+  const bags = useBagStore((state) => state.bags);
   return (
     <>
       <p className="demo-label">

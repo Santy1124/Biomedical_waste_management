@@ -1,7 +1,7 @@
 import { Html5Qrcode } from "html5-qrcode";
 import React from "react";
 import { StatusBadge } from "../components/StatusBadge";
-import { bags as initialBags } from "../data/mockData";
+import { useBagStore } from "../store/bagStore";
 import type { Bag, BagStatus } from "../types/bmw";
 
 const scannerId = "qr-reader";
@@ -17,12 +17,17 @@ const nextActionMap: Record<BagStatus, { label: string; next: BagStatus } | null
 };
 
 export function Scanner() {
-  const [bags, setBags] = React.useState<Bag[]>(initialBags);
   const [scanInput, setScanInput] = React.useState("BMW-YEL-001");
-  const [scannedBag, setScannedBag] = React.useState<Bag | null>(initialBags[0]);
   const [scanError, setScanError] = React.useState("");
   const [recentScans, setRecentScans] = React.useState<string[]>(["BMW-YEL-001"]);
   const [isScanning, setIsScanning] = React.useState(false);
+  const bags = useBagStore((state) => state.bags);
+  const updateBagStatus = useBagStore((state) => state.updateBagStatus);
+  const [scannedBagId, setScannedBagId] = React.useState<string | null>("BMW-YEL-001");
+
+  const scannedBag = scannedBagId
+    ? bags.find((bag) => bag.id === scannedBagId) ?? null
+    : null;
 
   const scannerRef = React.useRef<Html5Qrcode | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -33,14 +38,14 @@ export function Scanner() {
     );
 
     if (!found) {
-      setScannedBag(null);
+      setScannedBagId(null);
       setScanError(`No matching bag found for "${value}".`);
       return;
     }
 
     setScanInput(found.id);
     setScanError("");
-    setScannedBag(found);
+    setScannedBagId(found.id);
     setRecentScans((prev) => [found.id, ...prev.filter((id) => id !== found.id)].slice(0, 5));
   }
 
@@ -106,13 +111,7 @@ export function Scanner() {
 
   function updateStatus(status: BagStatus) {
     if (!scannedBag) return;
-
-    const updatedBags = bags.map((bag) =>
-      bag.id === scannedBag.id ? { ...bag, status } : bag
-    );
-
-    setBags(updatedBags);
-    setScannedBag(updatedBags.find((bag) => bag.id === scannedBag.id) ?? null);
+    updateBagStatus(scannedBag.id, status);
   }
 
   React.useEffect(() => {

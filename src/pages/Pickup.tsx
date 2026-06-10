@@ -1,10 +1,11 @@
 import React from "react";
 
-import { bags } from "../data/mockData";
+import { useBagStore } from "../store/bagStore";
 import { ManifestBagSelector } from "../components/ManifestBagSelector";
 import { ManifestSummary } from "../components/ManifestSummary";
 
 export function Pickup() {
+  const bags = useBagStore((state) => state.bags);
   const [selectedIds, setSelectedIds] =
     React.useState<string[]>([]);
 
