@@ -8,8 +8,8 @@ export type PageKey =
   | "pickup"
   | "incidents"
   | "reports"
-  | "training";
-  | "compliance";
+  | "training"
+  | "compliance"
   | "alerts";
 
 export type RiskLevel = "Normal" | "Medium" | "High" | "Breach";
