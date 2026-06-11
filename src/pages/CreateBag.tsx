@@ -78,16 +78,9 @@ export function CreateBag() {
     setCreatedBagId(newBag.id);
   }
 
-  async function createBagForCategory(targetCategory: Category) {
-    const newBag = await addBag({
-      category: targetCategory,
-      department,
-      weight: "Pending",
-    });
-
+  function applySuggestedCategory(targetCategory: Category) {
     setCategory(targetCategory);
     setSelectedCategory(targetCategory);
-    setCreatedBagId(newBag.id);
   }
 
   function simulateMixedDetection() {
@@ -212,7 +205,7 @@ export function CreateBag() {
           {detections.length > 0 && (
             <>
               <div className="ai-warning">
-                Mixed waste detected. Do not place all items into one bag. Segregate by category.
+                AI suggestion only. Staff must manually segregate items and confirm before creating bag/container records.
               </div>
 
               <div className="detected-grid">
@@ -231,9 +224,9 @@ export function CreateBag() {
                     <button
                       type="button"
                       className="primary-btn"
-                      onClick={() => createBagForCategory(groupCategory as Category)}
+                      onClick={() => applySuggestedCategory(groupCategory as Category)}
                     >
-                      Create {groupCategory} Bag
+                      Set Form to {groupCategory}
                     </button>
                   </div>
                 ))}
@@ -254,7 +247,7 @@ export function CreateBag() {
 
           {selectedCategory && (
             <p className="photo-name">
-              Created from AI recommendation: {selectedCategory} stream
+              AI suggested category selected: {selectedCategory} stream. Staff must create bag after manual segregation.
             </p>
           )}
 
